@@ -163,7 +163,7 @@ describe("Given that I am a user on login page", () => {
       document.body.innerHTML = LoginUI();
       const inputData = {
         type: "Admin",
-        // email: "johndoe@email.com",
+        email: "johndoe@email.com",
         password: "azerty",
         status: "connected",
       };
