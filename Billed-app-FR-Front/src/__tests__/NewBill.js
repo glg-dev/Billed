@@ -4,6 +4,7 @@
 
 import { fireEvent, screen } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
+import BillsUI from "../views/BillsUI.js";
 import NewBill from "../containers/NewBill.js"
 import mockStore from "../__mocks__/store";
 import { ROUTES, ROUTES_PATH } from "../constants/routes";
@@ -34,6 +35,7 @@ describe("Given I am connected as an employee", () => {
     })
   })
 
+  // Test d'intégration POST
   describe('When I submit a new Bill on correct format', () => { 
     test('Then the submit should success', () => { 
       const html = NewBillUI()
@@ -48,6 +50,29 @@ describe("Given I am connected as an employee", () => {
       fireEvent.submit(formNewBill);
       expect(handleSubmit).toHaveBeenCalled();      
     })
+    describe('When an error occurs', () => { 
+        test('should fail with 500 message error', async () => { 
+            jest.spyOn(mockStore, "bills")
+            Object.defineProperty(
+                window,
+                'localStorage',
+                { value: localStorageMock }
+            )
+            window.localStorage.setItem('user', JSON.stringify({
+              type: 'Employee',
+              email: "a@a"
+            }))
+        mockStore.bills.mockImplementationOnce(() => {
+          return {
+            create : () =>  {
+              return Promise.reject(new Error("Erreur 500"))
+            }
+          }})
+          const html = BillsUI({ error: "Erreur 500" });
+          document.body.innerHTML = html;
+          const message = await screen.getByText(/Erreur 500/);
+          expect(message).toBeTruthy();       })
+     })
    })
 
   describe("When I upload an incorrect file", () => {
